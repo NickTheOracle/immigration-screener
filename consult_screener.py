@@ -18,6 +18,7 @@ TEXT = {
         "back": "Back",
         "reset": "Reset",
         "results": "Informational Results",
+        "answers_hdr": "Answers:",
         "pdf_btn": "Download PDF summary",
         "mailto_btn": "Open email to send summary",
         "admin_note": "Please send this PDF or email to the administrator or the person who provided you this form.",
@@ -43,9 +44,20 @@ TEXT = {
         "q_parent_citizen_at_birth": "Was at least one parent a U.S. citizen at the time of your birth?",
         "q_parent_pres_req": "Did that U.S. citizen parent meet U.S. physical presence before your birth?",
         "q_parent_natz_after": "Did a parent become a U.S. citizen after your birth?",
+
+        # Result strings
+        "r_us_born": "Born in the United States → likely U.S. citizen by birth (obtain state birth certificate and/or U.S. passport).",
+        "r_crba": "CRBA (citizenship at birth; apply at U.S. Embassy/Consulate) and first U.S. passport.",
+        "r_n600_birth": "N-600 (proof of citizenship) if citizenship was acquired at birth.",
+        "r_n600_320": "N-600 (derivation under INA §320 if the child is an LPR and resides in the legal and physical custody of the U.S. citizen parent).",
+        "r_i130": "I-130 family petition (then consular processing or adjustment when eligible).",
+        "n_no_family": "No clear family-based path indicated; consider employment or humanitarian categories.",
+        "n_inadmiss": "Potential inadmissibility noted; waivers (I-601/I-601A) or other remedies may be required depending on facts.",
+        "routes_hdr_mail": "Possible routes:",
+        "notes_hdr_mail": "Notes:",
+        "mail_subject": "Screener Results",
     },
     "es": {
-        # UI
         "title": "Evaluador de Consulta de Inmigración",
         "disclaimer": ("**Aviso:** Esta herramienta es solo para información general. "
                        "No ofrece asesoría legal, no crea una relación abogado-cliente y no debe usarse "
@@ -56,22 +68,21 @@ TEXT = {
         "back": "Atrás",
         "reset": "Reiniciar",
         "results": "Resultados informativos",
+        "answers_hdr": "Respuestas:",
         "pdf_btn": "Descargar resumen en PDF",
         "mailto_btn": "Abrir correo para enviar resumen",
-        "admin_note": "Por favor envíe este PDF o correo al administrador o a quien le dio este formulario.",
-        "no_route": "No hay ruta clara según sus respuestas. Se recomienda revisión con abogado.",
+        "admin_note": "Por favor envíe este PDF o correo al administrador o a la persona que le proporcionó este formulario.",
+        "no_route": "No hay una ruta clara según sus respuestas. Se recomienda revisión con abogado.",
         "routes_label": "Rutas posibles para explorar",
         "notes_label": "Notas",
         "progress": "Paso {cur} de {total}",
 
-        # Common options
         "Yes": "Sí",
         "No": "No",
         "Not sure": "No seguro",
         "InsideUS": "Dentro de EE. UU.",
         "OutsideUS": "Fuera de EE. UU.",
 
-        # Questions
         "q_where": "¿Dónde se encuentra ahora?",
         "q_born_abroad": "¿Nació fuera de los Estados Unidos?",
         "q_under_18": "¿Tiene menos de 18 años?",
@@ -81,9 +92,19 @@ TEXT = {
         "q_parent_citizen_at_birth": "¿Algún progenitor era ciudadano de EE. UU. en el momento de su nacimiento?",
         "q_parent_pres_req": "¿Ese progenitor cumplió presencia física en EE. UU. antes de su nacimiento?",
         "q_parent_natz_after": "¿Algún progenitor se naturalizó después de su nacimiento?",
+
+        "r_us_born": "Nacido en Estados Unidos → probablemente ciudadano por nacimiento (obtenga acta de nacimiento estatal y/o pasaporte estadounidense).",
+        "r_crba": "CRBA (ciudadanía al nacer; solicítelo en Embajada/Consulado de EE. UU.) y primer pasaporte estadounidense.",
+        "r_n600_birth": "N-600 (prueba de ciudadanía) si hubo ciudadanía al nacer.",
+        "r_n600_320": "N-600 (derivación bajo INA §320 si el menor es residente permanente y vive bajo custodia legal y física del padre/madre ciudadano).",
+        "r_i130": "I-130 (petición familiar) y luego proceso consular o ajuste cuando sea elegible.",
+        "n_no_family": "No se identifica vía familiar clara; considere categorías laborales o humanitarias.",
+        "n_inadmiss": "Posible inadmisibilidad; pueden requerirse perdones (I-601/I-601A) u otros remedios según los hechos.",
+        "routes_hdr_mail": "Rutas posibles:",
+        "notes_hdr_mail": "Notas:",
+        "mail_subject": "Resultados del evaluador",
     },
     "pt": {
-        # UI
         "title": "Triagem de Consulta de Imigração",
         "disclaimer": ("**Aviso:** Esta ferramenta é apenas para fins informativos. "
                        "Não fornece aconselhamento jurídico, não cria relação advogado-cliente e não substitui "
@@ -94,22 +115,21 @@ TEXT = {
         "back": "Voltar",
         "reset": "Reiniciar",
         "results": "Resultados informativos",
+        "answers_hdr": "Respostas:",
         "pdf_btn": "Baixar resumo em PDF",
         "mailto_btn": "Abrir e-mail para enviar resumo",
-        "admin_note": "Envie este PDF ou e-mail ao administrador ou a quem lhe forneceu este formulário.",
+        "admin_note": "Envie este PDF ou e-mail ao administrador ou à pessoa que lhe forneceu este formulário.",
         "no_route": "Nenhuma rota clara identificada. Recomenda-se revisão com advogado.",
         "routes_label": "Rotas possíveis para explorar",
         "notes_label": "Observações",
         "progress": "Etapa {cur} de {total}",
 
-        # Common options
         "Yes": "Sim",
         "No": "Não",
         "Not sure": "Não sei",
         "InsideUS": "Dentro dos EUA",
         "OutsideUS": "Fora dos EUA",
 
-        # Questions
         "q_where": "Onde você está agora?",
         "q_born_abroad": "Você nasceu fora dos Estados Unidos?",
         "q_under_18": "Você tem menos de 18 anos?",
@@ -119,6 +139,17 @@ TEXT = {
         "q_parent_citizen_at_birth": "Algum dos pais era cidadão dos EUA no momento do seu nascimento?",
         "q_parent_pres_req": "Esse pai/mãe cumpriu presença física nos EUA antes do seu nascimento?",
         "q_parent_natz_after": "Algum dos pais se naturalizou após o seu nascimento?",
+
+        "r_us_born": "Nascido nos Estados Unidos → provavelmente cidadão por nascimento (obter certidão estadual e/ou passaporte dos EUA).",
+        "r_crba": "CRBA (cidadania ao nascer; solicite na Embaixada/Consulado dos EUA) e primeiro passaporte dos EUA.",
+        "r_n600_birth": "N-600 (prova de cidadania) se houve cidadania ao nascer.",
+        "r_n600_320": "N-600 (derivação pelo INA §320 se o menor é residente permanente e vive sob custódia legal e física do pai/mãe cidadão).",
+        "r_i130": "I-130 (petição familiar) e depois processamento consular ou ajuste quando elegível.",
+        "n_no_family": "Nenhuma via familiar clara identificada; considere categorias de trabalho ou humanitárias.",
+        "n_inadmiss": "Possível inadmissibilidade; podem ser necessários perdões (I-601/I-601A) ou outras medidas conforme os fatos.",
+        "routes_hdr_mail": "Rotas possíveis:",
+        "notes_hdr_mail": "Observações:",
+        "mail_subject": "Resultados da triagem",
     },
 }
 
@@ -136,7 +167,7 @@ def make_pdf_bytes(answers, routes, notes, lang):
     story = []
     story.append(Paragraph(TEXT[lang]["title"], styles["Title"]))
     story.append(Spacer(1, 12))
-    story.append(Paragraph("Answers:", styles["Heading2"]))
+    story.append(Paragraph(TEXT[lang]["answers_hdr"], styles["Heading2"]))
     for k, v in answers.items():
         story.append(Paragraph(f"- {k}: {v}", styles["Normal"]))
     story.append(Spacer(1, 12))
@@ -190,17 +221,17 @@ st.title(t["title"])
 st.markdown(t["disclaimer"])
 st.markdown("---")
 
-# ===== Questions (localized labels + options) =====
+# ===== Questions (localized) =====
 Q = [
     (t["q_where"],            [t["InsideUS"], t["OutsideUS"]],          "where"),
-    (t["q_born_abroad"],      [t["Yes"], t["No"]],                       "born_abroad"),
-    (t["q_under_18"],         [t["Yes"], t["No"]],                       "under_18"),
-    (t["q_usc_spouse"],       [t["Yes"], t["No"]],                       "usc_spouse"),
-    (t["q_usc_parent"],       [t["Yes"], t["No"]],                       "usc_parent"),
-    (t["q_usc_child21"],      [t["Yes"], t["No"]],                       "usc_child21"),
+    (t["q_born_abroad"],      [t["Yes"], t["No"]],                      "born_abroad"),
+    (t["q_under_18"],         [t["Yes"], t["No"]],                      "under_18"),
+    (t["q_usc_spouse"],       [t["Yes"], t["No"]],                      "usc_spouse"),
+    (t["q_usc_parent"],       [t["Yes"], t["No"]],                      "usc_parent"),
+    (t["q_usc_child21"],      [t["Yes"], t["No"]],                      "usc_child21"),
     (t["q_parent_citizen_at_birth"], [t["Yes"], t["No"], t["Not sure"]], "parent_citizen_at_birth"),
-    (t["q_parent_pres_req"],  [t["Yes"], t["No"], t["Not sure"]],        "parent_pres_req"),
-    (t["q_parent_natz_after"],[t["Yes"], t["No"]],                       "parent_natz_after"),
+    (t["q_parent_pres_req"],  [t["Yes"], t["No"], t["Not sure"]],       "parent_pres_req"),
+    (t["q_parent_natz_after"],[t["Yes"], t["No"]],                      "parent_natz_after"),
 ]
 TOTAL = len(Q)
 
@@ -210,7 +241,7 @@ if 1 <= st.session_state.step <= TOTAL:
     st.write(t["progress"].format(cur=cur, total=TOTAL))
     st.progress((cur - 1) / TOTAL)
 
-# ===== Navigation & persistence =====
+# ===== Navigation =====
 def goto(delta):
     st.session_state.step = max(1, min(TOTAL + 1, st.session_state.step + delta))
     rerun()
@@ -236,32 +267,34 @@ if 1 <= st.session_state.step <= TOTAL:
             st.session_state.answers[key] = st.session_state.get(f"q_{key}", choice)
             goto(+1)
 
-# ===== Results =====
+# ===== Results (localized strings) =====
 if st.session_state.step > TOTAL:
     a = st.session_state.answers
     routes, notes = [], []
 
-    # Normalize stored values to English keys for logic by mapping reverse
-    def is_yes(val):  return val == TEXT[lang]["Yes"]
-    def is_no(val):   return val == TEXT[lang]["No"]
-    def is_inside(v): return v == TEXT[lang]["InsideUS"]
-    def is_outside(v):return v == TEXT[lang]["OutsideUS"]
+    def is_yes(v):  return v == t["Yes"]
+    def is_no(v):   return v == t["No"]
+    def is_inside(v): return v == t["InsideUS"]
+    def is_outside(v): return v == t["OutsideUS"]
 
-    if is_no(a.get("born_abroad", TEXT[lang]["No"])):
-        routes.append("Born in the U.S. → likely U.S. citizen by birth (state birth certificate/U.S. passport).")
+    if is_no(a.get("born_abroad", t["No"])):
+        routes.append(t["r_us_born"])
     else:
-        if is_yes(a.get("parent_citizen_at_birth", TEXT[lang]["No"])) and is_yes(a.get("parent_pres_req", TEXT[lang]["No"])):
-            if is_yes(a.get("under_18", TEXT[lang]["No"])) and is_outside(a.get("where", TEXT[lang]["OutsideUS"])):
-                routes.append("CRBA (citizenship at birth; apply at U.S. Embassy/Consulate) + first U.S. passport.")
+        if is_yes(a.get("parent_citizen_at_birth", t["No"])) and is_yes(a.get("parent_pres_req", t["No"])):
+            if is_yes(a.get("under_18", t["No"])) and is_outside(a.get("where", t["OutsideUS"])):
+                routes.append(t["r_crba"])
             else:
-                routes.append("N-600 (proof of citizenship) if citizenship was acquired at birth.")
-        if is_yes(a.get("parent_natz_after", TEXT[lang]["No"])) and is_yes(a.get("under_18", TEXT[lang]["No"])) and is_inside(a.get("where", TEXT[lang]["InsideUS"])):
-            routes.append("N-600 (derivation under INA §320 if child is LPR and in legal/physical custody of U.S. citizen parent).")
+                routes.append(t["r_n600_birth"])
+        if is_yes(a.get("parent_natz_after", t["No"])) and is_yes(a.get("under_18", t["No"])) and is_inside(a.get("where", t["InsideUS"])):
+            routes.append(t["r_n600_320"])
         if not routes:
-            if any(is_yes(a.get(k, TEXT[lang]["No"])) for k in ("usc_spouse", "usc_parent", "usc_child21")):
-                routes.append("I-130 family petition (consular processing or adjustment when eligible).")
+            if any(is_yes(a.get(k, t["No"])) for k in ("usc_spouse", "usc_parent", "usc_child21")):
+                routes.append(t["r_i130"])
             else:
-                notes.append("No clear family-based path indicated; consider employment or humanitarian categories.")
+                notes.append(t["n_no_family"])
+
+    # Example inadmissibility note hook (if you later add flags)
+    # notes.append(t["n_inadmiss"])
 
     st.subheader(t["results"])
     if routes:
@@ -280,12 +313,12 @@ if st.session_state.step > TOTAL:
     pdf_bytes = make_pdf_bytes(a, routes, notes, lang)
     st.download_button(label=t["pdf_btn"], data=pdf_bytes, file_name="screener_summary.pdf", mime="application/pdf")
 
-    subject = urllib.parse.quote("Screener Results")
+    subject = urllib.parse.quote(TEXT[lang]["mail_subject"])
     lines = [f"{k}: {v}" for k, v in a.items()]
     if routes:
-        lines += ["", "Possible routes:"] + [f"- {r}" for r in routes]
+        lines += ["", TEXT[lang]["routes_hdr_mail"]] + [f"- {r}" for r in routes]
     if notes:
-        lines += ["", "Notes:"] + [f"- {n}" for n in notes]
+        lines += ["", TEXT[lang]["notes_hdr_mail"]] + [f"- {n}" for n in notes]
     lines += ["", TEXT[lang]["admin_note"]]
     body = urllib.parse.quote("\n".join(lines)[:1500])
     st.markdown(f"[{TEXT[lang]['mailto_btn']}]({'mailto:?subject=' + subject + '&body=' + body})")
