@@ -4,7 +4,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import io, datetime, urllib.parse
 
-# ===== Translations =====
+# ---------- Translations ----------
 TEXT = {
     "en": {
         "title": "Immigration Consultation Screener",
@@ -15,7 +15,7 @@ TEXT = {
         "start": "Start",
         "next": "Next",
         "back": "Back",
-        "determine": "Show results",
+        "reset": "Reset",
         "results": "Informational Results",
         "pdf_btn": "Download PDF summary",
         "mailto_btn": "Open email to send summary",
@@ -34,7 +34,7 @@ TEXT = {
         "start": "Iniciar",
         "next": "Siguiente",
         "back": "Atrás",
-        "determine": "Mostrar resultados",
+        "reset": "Reiniciar",
         "results": "Resultados informativos",
         "pdf_btn": "Descargar resumen en PDF",
         "mailto_btn": "Abrir correo para enviar resumen",
@@ -53,7 +53,7 @@ TEXT = {
         "start": "Iniciar",
         "next": "Avançar",
         "back": "Voltar",
-        "determine": "Mostrar resultados",
+        "reset": "Reiniciar",
         "results": "Resultados informativos",
         "pdf_btn": "Baixar resumo em PDF",
         "mailto_btn": "Abrir e-mail para enviar resumo",
@@ -65,7 +65,14 @@ TEXT = {
     },
 }
 
-# ===== PDF maker =====
+# ---------- Utilities ----------
+def rerun():
+    # Streamlit renamed experimental_rerun -> rerun; support both
+    if hasattr(st, "rerun"):
+        st.rerun()
+    else:
+        st.experimental_rerun()  # noqa
+
 def make_pdf_bytes(answers, routes, notes, lang):
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=letter)
@@ -97,10 +104,10 @@ def make_pdf_bytes(answers, routes, notes, lang):
     buf.close()
     return pdf
 
-# ===== Config =====
+# ---------- App config ----------
 st.set_page_config(page_title="Screener", layout="centered")
 
-# ===== State =====
+# ---------- Session state ----------
 if "step" not in st.session_state:
     st.session_state.step = 0
 if "answers" not in st.session_state:
@@ -108,22 +115,27 @@ if "answers" not in st.session_state:
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
 
-# ===== Language selection (Step 0) =====
+# ---------- Language selection (Step 0) ----------
 if st.session_state.step == 0:
-    lang_choice = st.selectbox("Choose language / Elija idioma / Escolha idioma", ["English", "Español", "Português"])
+    lang_choice = st.selectbox(
+        "Choose language / Elija idioma / Escolha idioma",
+        ["English", "Español", "Português"]
+    )
     st.session_state.lang = {"English": "en", "Español": "es", "Português": "pt"}[lang_choice]
     if st.button(TEXT[st.session_state.lang]["start"]):
         st.session_state.step = 1
+        rerun()
 
 lang = st.session_state.lang
 t = TEXT[lang]
 
-# ===== Disclaimer (always visible) =====
+# ---------- Disclaimer (always visible) ----------
 st.title(t["title"])
 st.markdown(t["disclaimer"])
 st.markdown("---")
 
-# ===== Questions definition =====
+# ---------- Questions ----------
+# labels kept in English for clarity; adapt to t[...] if you want translations for questions
 questions = [
     ("Where are you now?", ["Inside the U.S.", "Outside the U.S."], "where"),
     ("Were you born outside the United States?", ["Yes", "No"], "born_abroad"),
@@ -137,70 +149,67 @@ questions = [
 ]
 total_steps = len(questions)
 
-# ===== Progress =====
+# ---------- Progress ----------
 if 1 <= st.session_state.step <= total_steps:
     cur = st.session_state.step
     st.write(t["progress"].format(cur=cur, total=total_steps))
     st.progress((cur - 1) / total_steps)
 
-# ===== One-question-at-a-time UI with Back/Next =====
+# ---------- One-question UI with Back/Next ----------
 if 1 <= st.session_state.step <= total_steps:
     q_text, options, key = questions[st.session_state.step - 1]
-
-    # Restore prior answer if present
     prev = st.session_state.answers.get(key)
+
+    # restore previous selection if available
     if prev in options:
-        try:
-            idx = options.index(prev)
-            choice = st.radio(q_text, options, index=idx, key=f"q_{key}")
-        except ValueError:
-            choice = st.radio(q_text, options, key=f"q_{key}")
+        idx = options.index(prev)
+        choice = st.radio(q_text, options, index=idx, key=f"q_{key}")
     else:
         choice = st.radio(q_text, options, key=f"q_{key}")
 
-    # Buttons row
-    c1, c2 = st.columns(2)
+    c1, c2, c3 = st.columns([1, 1, 1])
     with c1:
-        if st.button(t["back"], use_container_width=True):
-            if st.session_state.step > 1:
-                # persist current selection before going back
-                st.session_state.answers[key] = st.session_state.get(f"q_{key}", prev)
-                st.session_state.step -= 1
-                st.experimental_rerun()
+        if st.button(t["back"], use_container_width=True, disabled=(st.session_state.step == 1)):
+            # persist current selection first
+            st.session_state.answers[key] = st.session_state.get(f"q_{key}", prev)
+            st.session_state.step -= 1
+            rerun()
     with c2:
+        if st.button(t["reset"], use_container_width=True):
+            st.session_state.step = 0
+            st.session_state.answers = {}
+            rerun()
+    with c3:
         if st.button(t["next"], use_container_width=True):
-            # require a selection; radio always has one
+            # save selection, move forward
             st.session_state.answers[key] = st.session_state.get(f"q_{key}", choice)
             if st.session_state.step < total_steps:
                 st.session_state.step += 1
-                st.experimental_rerun()
             else:
-                # finished last question
                 st.session_state.step = total_steps + 1
-                st.experimental_rerun()
+            rerun()
 
-# ===== Results =====
+# ---------- Results ----------
 if st.session_state.step > total_steps:
-    answers = st.session_state.answers
+    a = st.session_state.answers
     routes, notes = [], []
 
-    # Routing logic (concise, informational)
-    if answers.get("born_abroad") == "No":
-        routes.append("Born in the U.S. → likely U.S. citizen by birth (state birth certificate / U.S. passport).")
+    if a.get("born_abroad") == "No":
+        routes.append("Born in the U.S. → likely U.S. citizen by birth (state birth certificate/U.S. passport).")
     else:
-        # Citizenship at birth
-        if answers.get("parent_citizen_at_birth") == "Yes" and answers.get("parent_pres_req") == "Yes":
-            if answers.get("under_18") == "Yes" and answers.get("where") == "Outside the U.S.":
+        # citizenship at birth
+        if a.get("parent_citizen_at_birth") == "Yes" and a.get("parent_pres_req") == "Yes":
+            if a.get("under_18") == "Yes" and a.get("where") == "Outside the U.S.":
                 routes.append("CRBA (citizenship at birth; apply at U.S. Embassy/Consulate) + first U.S. passport.")
             else:
                 routes.append("N-600 (proof of citizenship) if citizenship was acquired at birth.")
-        # Derivation after birth
-        if answers.get("parent_natz_after") == "Yes" and answers.get("under_18") == "Yes" and answers.get("where") == "Inside the U.S.":
+        # derivation after birth
+        if a.get("parent_natz_after") == "Yes" and a.get("under_18") == "Yes" and a.get("where") == "Inside the U.S.":
             routes.append("N-600 (derivation under INA §320 if child is LPR and in legal/physical custody of U.S. citizen parent).")
-        # Family petition fallback
+        # fallback family
         if not routes:
-            if any(answers.get(k) == "Yes" for k in ("usc_spouse", "usc_parent", "usc_child21")):
-                routes.append("I-130 family petition (then consular processing or adjustment when eligible).")
+            if any(a.get(k) == "Yes" for k in ("usc_spouse", "usc_parent", "usc_child21")):
+                routes.append("I-130 family petition (consular processing or adjustment when eligible).")
             else:
                 notes.append("No clear family-based path indicated; consider employment or humanitarian categories.")
 
@@ -218,12 +227,11 @@ if st.session_state.step > total_steps:
             st.write(f"- {n}")
 
     # PDF + Mailto
-    pdf_bytes = make_pdf_bytes(answers, routes, notes, lang)
-    st.download_button(label=t["pdf_btn"], data=pdf_bytes,
-                       file_name="screener_summary.pdf", mime="application/pdf")
+    pdf_bytes = make_pdf_bytes(a, routes, notes, lang)
+    st.download_button(label=t["pdf_btn"], data=pdf_bytes, file_name="screener_summary.pdf", mime="application/pdf")
 
     subject = urllib.parse.quote("Screener Results")
-    body_lines = [f"{k}: {v}" for k, v in answers.items()]
+    body_lines = [f"{k}: {v}" for k, v in a.items()]
     if routes:
         body_lines += ["", "Possible routes:"]
         body_lines += [f"- {r}" for r in routes]
@@ -232,9 +240,16 @@ if st.session_state.step > total_steps:
         body_lines += [f"- {n}" for n in notes]
     body_lines += ["", TEXT[lang]["admin_note"]]
     body = urllib.parse.quote("\n".join(body_lines)[:1500])
-    st.markdown(f"[{t['mailto_btn']}]({'mailto:?subject=' + subject + '&body=' + body})")
+    st.markdown(f"[{TEXT[lang]['mailto_btn']}]({'mailto:?subject=' + subject + '&body=' + body})")
 
-    # Allow going back from results if needed
-    if st.button(t["back"]):
-        st.session_state.step = total_steps
-        st.experimental_rerun()
+    # Back/Reset at results
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button(t["back"], use_container_width=True):
+            st.session_state.step = total_steps
+            rerun()
+    with c2:
+        if st.button(t["reset"], use_container_width=True):
+            st.session_state.step = 0
+            st.session_state.answers = {}
+            rerun()
