@@ -4,9 +4,10 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import io, datetime, urllib.parse
 
-# ---------- Translations ----------
+# ===== Translations =====
 TEXT = {
     "en": {
+        # UI
         "title": "Immigration Consultation Screener",
         "disclaimer": ("**Disclaimer:** This tool is for informational purposes only. "
                        "It does not provide legal advice, does not create an attorney-client relationship, "
@@ -24,8 +25,27 @@ TEXT = {
         "routes_label": "Possible routes to explore",
         "notes_label": "Notes",
         "progress": "Step {cur} of {total}",
+
+        # Common options
+        "Yes": "Yes",
+        "No": "No",
+        "Not sure": "Not sure",
+        "InsideUS": "Inside the U.S.",
+        "OutsideUS": "Outside the U.S.",
+
+        # Questions
+        "q_where": "Where are you now?",
+        "q_born_abroad": "Were you born outside the United States?",
+        "q_under_18": "Are you under 18 years old?",
+        "q_usc_spouse": "Do you have a U.S. citizen spouse?",
+        "q_usc_parent": "Do you have a U.S. citizen parent?",
+        "q_usc_child21": "Do you have a U.S. citizen son/daughter age 21 or older?",
+        "q_parent_citizen_at_birth": "Was at least one parent a U.S. citizen at the time of your birth?",
+        "q_parent_pres_req": "Did that U.S. citizen parent meet U.S. physical presence before your birth?",
+        "q_parent_natz_after": "Did a parent become a U.S. citizen after your birth?",
     },
     "es": {
+        # UI
         "title": "Evaluador de Consulta de Inmigración",
         "disclaimer": ("**Aviso:** Esta herramienta es solo para información general. "
                        "No ofrece asesoría legal, no crea una relación abogado-cliente y no debe usarse "
@@ -43,8 +63,27 @@ TEXT = {
         "routes_label": "Rutas posibles para explorar",
         "notes_label": "Notas",
         "progress": "Paso {cur} de {total}",
+
+        # Common options
+        "Yes": "Sí",
+        "No": "No",
+        "Not sure": "No seguro",
+        "InsideUS": "Dentro de EE. UU.",
+        "OutsideUS": "Fuera de EE. UU.",
+
+        # Questions
+        "q_where": "¿Dónde se encuentra ahora?",
+        "q_born_abroad": "¿Nació fuera de los Estados Unidos?",
+        "q_under_18": "¿Tiene menos de 18 años?",
+        "q_usc_spouse": "¿Tiene cónyuge ciudadano estadounidense?",
+        "q_usc_parent": "¿Tiene padre/madre ciudadano(a) de EE. UU.?",
+        "q_usc_child21": "¿Tiene hijo(a) ciudadano(a) de EE. UU. mayor de 21 años?",
+        "q_parent_citizen_at_birth": "¿Algún progenitor era ciudadano de EE. UU. en el momento de su nacimiento?",
+        "q_parent_pres_req": "¿Ese progenitor cumplió presencia física en EE. UU. antes de su nacimiento?",
+        "q_parent_natz_after": "¿Algún progenitor se naturalizó después de su nacimiento?",
     },
     "pt": {
+        # UI
         "title": "Triagem de Consulta de Imigração",
         "disclaimer": ("**Aviso:** Esta ferramenta é apenas para fins informativos. "
                        "Não fornece aconselhamento jurídico, não cria relação advogado-cliente e não substitui "
@@ -62,12 +101,29 @@ TEXT = {
         "routes_label": "Rotas possíveis para explorar",
         "notes_label": "Observações",
         "progress": "Etapa {cur} de {total}",
+
+        # Common options
+        "Yes": "Sim",
+        "No": "Não",
+        "Not sure": "Não sei",
+        "InsideUS": "Dentro dos EUA",
+        "OutsideUS": "Fora dos EUA",
+
+        # Questions
+        "q_where": "Onde você está agora?",
+        "q_born_abroad": "Você nasceu fora dos Estados Unidos?",
+        "q_under_18": "Você tem menos de 18 anos?",
+        "q_usc_spouse": "Você tem cônjuge cidadão dos EUA?",
+        "q_usc_parent": "Você tem pai/mãe cidadão(ã) dos EUA?",
+        "q_usc_child21": "Você tem filho(a) cidadão(ã) dos EUA com 21 anos ou mais?",
+        "q_parent_citizen_at_birth": "Algum dos pais era cidadão dos EUA no momento do seu nascimento?",
+        "q_parent_pres_req": "Esse pai/mãe cumpriu presença física nos EUA antes do seu nascimento?",
+        "q_parent_natz_after": "Algum dos pais se naturalizou após o seu nascimento?",
     },
 }
 
-# ---------- Utilities ----------
+# ===== Helpers =====
 def rerun():
-    # Streamlit renamed experimental_rerun -> rerun; support both
     if hasattr(st, "rerun"):
         st.rerun()
     else:
@@ -104,10 +160,10 @@ def make_pdf_bytes(answers, routes, notes, lang):
     buf.close()
     return pdf
 
-# ---------- App config ----------
+# ===== App config =====
 st.set_page_config(page_title="Screener", layout="centered")
 
-# ---------- Session state ----------
+# ===== State =====
 if "step" not in st.session_state:
     st.session_state.step = 0
 if "answers" not in st.session_state:
@@ -115,7 +171,7 @@ if "answers" not in st.session_state:
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
 
-# ---------- Language selection (Step 0) ----------
+# ===== Step 0: Language =====
 if st.session_state.step == 0:
     lang_choice = st.selectbox(
         "Choose language / Elija idioma / Escolha idioma",
@@ -129,86 +185,80 @@ if st.session_state.step == 0:
 lang = st.session_state.lang
 t = TEXT[lang]
 
-# ---------- Disclaimer (always visible) ----------
+# ===== Disclaimer =====
 st.title(t["title"])
 st.markdown(t["disclaimer"])
 st.markdown("---")
 
-# ---------- Questions ----------
-# labels kept in English for clarity; adapt to t[...] if you want translations for questions
-questions = [
-    ("Where are you now?", ["Inside the U.S.", "Outside the U.S."], "where"),
-    ("Were you born outside the United States?", ["Yes", "No"], "born_abroad"),
-    ("Are you under 18 years old?", ["Yes", "No"], "under_18"),
-    ("Do you have a U.S. citizen spouse?", ["Yes", "No"], "usc_spouse"),
-    ("Do you have a U.S. citizen parent?", ["Yes", "No"], "usc_parent"),
-    ("Do you have a U.S. citizen son/daughter age 21 or older?", ["Yes", "No"], "usc_child21"),
-    ("Was at least one parent a U.S. citizen at the time of your birth?", ["Yes", "No", "Not sure"], "parent_citizen_at_birth"),
-    ("Did that parent meet the physical presence requirement before your birth?", ["Yes", "No", "Not sure"], "parent_pres_req"),
-    ("Did a parent become a U.S. citizen after your birth?", ["Yes", "No"], "parent_natz_after"),
+# ===== Questions (localized labels + options) =====
+Q = [
+    (t["q_where"],            [t["InsideUS"], t["OutsideUS"]],          "where"),
+    (t["q_born_abroad"],      [t["Yes"], t["No"]],                       "born_abroad"),
+    (t["q_under_18"],         [t["Yes"], t["No"]],                       "under_18"),
+    (t["q_usc_spouse"],       [t["Yes"], t["No"]],                       "usc_spouse"),
+    (t["q_usc_parent"],       [t["Yes"], t["No"]],                       "usc_parent"),
+    (t["q_usc_child21"],      [t["Yes"], t["No"]],                       "usc_child21"),
+    (t["q_parent_citizen_at_birth"], [t["Yes"], t["No"], t["Not sure"]], "parent_citizen_at_birth"),
+    (t["q_parent_pres_req"],  [t["Yes"], t["No"], t["Not sure"]],        "parent_pres_req"),
+    (t["q_parent_natz_after"],[t["Yes"], t["No"]],                       "parent_natz_after"),
 ]
-total_steps = len(questions)
+TOTAL = len(Q)
 
-# ---------- Progress ----------
-if 1 <= st.session_state.step <= total_steps:
+# ===== Progress =====
+if 1 <= st.session_state.step <= TOTAL:
     cur = st.session_state.step
-    st.write(t["progress"].format(cur=cur, total=total_steps))
-    st.progress((cur - 1) / total_steps)
+    st.write(t["progress"].format(cur=cur, total=TOTAL))
+    st.progress((cur - 1) / TOTAL)
 
-# ---------- One-question UI with Back/Next ----------
-if 1 <= st.session_state.step <= total_steps:
-    q_text, options, key = questions[st.session_state.step - 1]
-    prev = st.session_state.answers.get(key)
+# ===== Navigation & persistence =====
+def goto(delta):
+    st.session_state.step = max(1, min(TOTAL + 1, st.session_state.step + delta))
+    rerun()
 
-    # restore previous selection if available
-    if prev in options:
-        idx = options.index(prev)
-        choice = st.radio(q_text, options, index=idx, key=f"q_{key}")
-    else:
-        choice = st.radio(q_text, options, key=f"q_{key}")
+if 1 <= st.session_state.step <= TOTAL:
+    label, opts, key = Q[st.session_state.step - 1]
+    saved = st.session_state.answers.get(key)
+    idx = opts.index(saved) if saved in opts else 0
+    choice = st.radio(label, opts, index=idx, key=f"q_{key}")
 
-    c1, c2, c3 = st.columns([1, 1, 1])
+    c1, c2, c3 = st.columns([1,1,1])
     with c1:
-        if st.button(t["back"], use_container_width=True, disabled=(st.session_state.step == 1)):
-            # persist current selection first
-            st.session_state.answers[key] = st.session_state.get(f"q_{key}", prev)
-            st.session_state.step -= 1
-            rerun()
+        if st.button(t["back"], disabled=(st.session_state.step == 1), use_container_width=True):
+            st.session_state.answers[key] = st.session_state.get(f"q_{key}", choice)
+            goto(-1)
     with c2:
         if st.button(t["reset"], use_container_width=True):
-            st.session_state.step = 0
             st.session_state.answers = {}
+            st.session_state.step = 0
             rerun()
     with c3:
         if st.button(t["next"], use_container_width=True):
-            # save selection, move forward
             st.session_state.answers[key] = st.session_state.get(f"q_{key}", choice)
-            if st.session_state.step < total_steps:
-                st.session_state.step += 1
-            else:
-                st.session_state.step = total_steps + 1
-            rerun()
+            goto(+1)
 
-# ---------- Results ----------
-if st.session_state.step > total_steps:
+# ===== Results =====
+if st.session_state.step > TOTAL:
     a = st.session_state.answers
     routes, notes = [], []
 
-    if a.get("born_abroad") == "No":
+    # Normalize stored values to English keys for logic by mapping reverse
+    def is_yes(val):  return val == TEXT[lang]["Yes"]
+    def is_no(val):   return val == TEXT[lang]["No"]
+    def is_inside(v): return v == TEXT[lang]["InsideUS"]
+    def is_outside(v):return v == TEXT[lang]["OutsideUS"]
+
+    if is_no(a.get("born_abroad", TEXT[lang]["No"])):
         routes.append("Born in the U.S. → likely U.S. citizen by birth (state birth certificate/U.S. passport).")
     else:
-        # citizenship at birth
-        if a.get("parent_citizen_at_birth") == "Yes" and a.get("parent_pres_req") == "Yes":
-            if a.get("under_18") == "Yes" and a.get("where") == "Outside the U.S.":
+        if is_yes(a.get("parent_citizen_at_birth", TEXT[lang]["No"])) and is_yes(a.get("parent_pres_req", TEXT[lang]["No"])):
+            if is_yes(a.get("under_18", TEXT[lang]["No"])) and is_outside(a.get("where", TEXT[lang]["OutsideUS"])):
                 routes.append("CRBA (citizenship at birth; apply at U.S. Embassy/Consulate) + first U.S. passport.")
             else:
                 routes.append("N-600 (proof of citizenship) if citizenship was acquired at birth.")
-        # derivation after birth
-        if a.get("parent_natz_after") == "Yes" and a.get("under_18") == "Yes" and a.get("where") == "Inside the U.S.":
+        if is_yes(a.get("parent_natz_after", TEXT[lang]["No"])) and is_yes(a.get("under_18", TEXT[lang]["No"])) and is_inside(a.get("where", TEXT[lang]["InsideUS"])):
             routes.append("N-600 (derivation under INA §320 if child is LPR and in legal/physical custody of U.S. citizen parent).")
-        # fallback family
         if not routes:
-            if any(a.get(k) == "Yes" for k in ("usc_spouse", "usc_parent", "usc_child21")):
+            if any(is_yes(a.get(k, TEXT[lang]["No"])) for k in ("usc_spouse", "usc_parent", "usc_child21")):
                 routes.append("I-130 family petition (consular processing or adjustment when eligible).")
             else:
                 notes.append("No clear family-based path indicated; consider employment or humanitarian categories.")
@@ -231,25 +281,22 @@ if st.session_state.step > total_steps:
     st.download_button(label=t["pdf_btn"], data=pdf_bytes, file_name="screener_summary.pdf", mime="application/pdf")
 
     subject = urllib.parse.quote("Screener Results")
-    body_lines = [f"{k}: {v}" for k, v in a.items()]
+    lines = [f"{k}: {v}" for k, v in a.items()]
     if routes:
-        body_lines += ["", "Possible routes:"]
-        body_lines += [f"- {r}" for r in routes]
+        lines += ["", "Possible routes:"] + [f"- {r}" for r in routes]
     if notes:
-        body_lines += ["", "Notes:"]
-        body_lines += [f"- {n}" for n in notes]
-    body_lines += ["", TEXT[lang]["admin_note"]]
-    body = urllib.parse.quote("\n".join(body_lines)[:1500])
+        lines += ["", "Notes:"] + [f"- {n}" for n in notes]
+    lines += ["", TEXT[lang]["admin_note"]]
+    body = urllib.parse.quote("\n".join(lines)[:1500])
     st.markdown(f"[{TEXT[lang]['mailto_btn']}]({'mailto:?subject=' + subject + '&body=' + body})")
 
-    # Back/Reset at results
     c1, c2 = st.columns(2)
     with c1:
         if st.button(t["back"], use_container_width=True):
-            st.session_state.step = total_steps
+            st.session_state.step = TOTAL
             rerun()
     with c2:
         if st.button(t["reset"], use_container_width=True):
-            st.session_state.step = 0
             st.session_state.answers = {}
+            st.session_state.step = 0
             rerun()
