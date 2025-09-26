@@ -13,6 +13,8 @@ TEXT = {
                        "and should not be relied on as a substitute for advice from a licensed immigration attorney."),
         "lang_prompt": "Choose language / Elija idioma / Escolha idioma",
         "start": "Start",
+        "next": "Next",
+        "back": "Back",
         "determine": "Show results",
         "results": "Informational Results",
         "pdf_btn": "Download PDF summary",
@@ -30,6 +32,8 @@ TEXT = {
                        "como sustituto de la asesoría de un abogado de inmigración autorizado."),
         "lang_prompt": "Elija idioma / Choose language / Escolha idioma",
         "start": "Iniciar",
+        "next": "Siguiente",
+        "back": "Atrás",
         "determine": "Mostrar resultados",
         "results": "Resultados informativos",
         "pdf_btn": "Descargar resumen en PDF",
@@ -47,6 +51,8 @@ TEXT = {
                        "a orientação de um advogado de imigração licenciado."),
         "lang_prompt": "Escolha idioma / Choose language / Elija idioma",
         "start": "Iniciar",
+        "next": "Avançar",
+        "back": "Voltar",
         "determine": "Mostrar resultados",
         "results": "Resultados informativos",
         "pdf_btn": "Baixar resumo em PDF",
@@ -102,10 +108,6 @@ if "answers" not in st.session_state:
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
 
-def next_step(key, value):
-    st.session_state.answers[key] = value
-    st.session_state.step += 1
-
 # ===== Language selection (Step 0) =====
 if st.session_state.step == 0:
     lang_choice = st.selectbox("Choose language / Elija idioma / Escolha idioma", ["English", "Español", "Português"])
@@ -121,9 +123,8 @@ st.title(t["title"])
 st.markdown(t["disclaimer"])
 st.markdown("---")
 
-# ===== Questions =====
+# ===== Questions definition =====
 questions = [
-    # (label, options, key)
     ("Where are you now?", ["Inside the U.S.", "Outside the U.S."], "where"),
     ("Were you born outside the United States?", ["Yes", "No"], "born_abroad"),
     ("Are you under 18 years old?", ["Yes", "No"], "under_18"),
@@ -134,38 +135,72 @@ questions = [
     ("Did that parent meet the physical presence requirement before your birth?", ["Yes", "No", "Not sure"], "parent_pres_req"),
     ("Did a parent become a U.S. citizen after your birth?", ["Yes", "No"], "parent_natz_after"),
 ]
-
 total_steps = len(questions)
 
-# ===== Progress Bar + Counter =====
+# ===== Progress =====
 if 1 <= st.session_state.step <= total_steps:
     cur = st.session_state.step
     st.write(t["progress"].format(cur=cur, total=total_steps))
     st.progress((cur - 1) / total_steps)
 
-# ===== One-question-at-a-time UI =====
+# ===== One-question-at-a-time UI with Back/Next =====
 if 1 <= st.session_state.step <= total_steps:
     q_text, options, key = questions[st.session_state.step - 1]
-    st.radio(q_text, options, key=f"q_{key}", on_change=lambda: next_step(key, st.session_state[f"q_{key}"]))
-else:
-    # ===== Results =====
+
+    # Restore prior answer if present
+    prev = st.session_state.answers.get(key)
+    if prev in options:
+        try:
+            idx = options.index(prev)
+            choice = st.radio(q_text, options, index=idx, key=f"q_{key}")
+        except ValueError:
+            choice = st.radio(q_text, options, key=f"q_{key}")
+    else:
+        choice = st.radio(q_text, options, key=f"q_{key}")
+
+    # Buttons row
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button(t["back"], use_container_width=True):
+            if st.session_state.step > 1:
+                # persist current selection before going back
+                st.session_state.answers[key] = st.session_state.get(f"q_{key}", prev)
+                st.session_state.step -= 1
+                st.experimental_rerun()
+    with c2:
+        if st.button(t["next"], use_container_width=True):
+            # require a selection; radio always has one
+            st.session_state.answers[key] = st.session_state.get(f"q_{key}", choice)
+            if st.session_state.step < total_steps:
+                st.session_state.step += 1
+                st.experimental_rerun()
+            else:
+                # finished last question
+                st.session_state.step = total_steps + 1
+                st.experimental_rerun()
+
+# ===== Results =====
+if st.session_state.step > total_steps:
     answers = st.session_state.answers
     routes, notes = [], []
 
     # Routing logic (concise, informational)
     if answers.get("born_abroad") == "No":
-        routes.append("Born in U.S. → likely U.S. citizen by birth (14th Amendment). Obtain state birth certificate and U.S. passport.")
+        routes.append("Born in the U.S. → likely U.S. citizen by birth (state birth certificate / U.S. passport).")
     else:
+        # Citizenship at birth
         if answers.get("parent_citizen_at_birth") == "Yes" and answers.get("parent_pres_req") == "Yes":
             if answers.get("under_18") == "Yes" and answers.get("where") == "Outside the U.S.":
                 routes.append("CRBA (citizenship at birth; apply at U.S. Embassy/Consulate) + first U.S. passport.")
             else:
                 routes.append("N-600 (proof of citizenship) if citizenship was acquired at birth.")
-        elif answers.get("parent_natz_after") == "Yes" and answers.get("under_18") == "Yes" and answers.get("where") == "Inside the U.S.":
+        # Derivation after birth
+        if answers.get("parent_natz_after") == "Yes" and answers.get("under_18") == "Yes" and answers.get("where") == "Inside the U.S.":
             routes.append("N-600 (derivation under INA §320 if child is LPR and in legal/physical custody of U.S. citizen parent).")
-        else:
+        # Family petition fallback
+        if not routes:
             if any(answers.get(k) == "Yes" for k in ("usc_spouse", "usc_parent", "usc_child21")):
-                routes.append("I-130 family petition (then either consular processing or adjustment when eligible).")
+                routes.append("I-130 family petition (then consular processing or adjustment when eligible).")
             else:
                 notes.append("No clear family-based path indicated; consider employment or humanitarian categories.")
 
@@ -198,3 +233,8 @@ else:
     body_lines += ["", TEXT[lang]["admin_note"]]
     body = urllib.parse.quote("\n".join(body_lines)[:1500])
     st.markdown(f"[{t['mailto_btn']}]({'mailto:?subject=' + subject + '&body=' + body})")
+
+    # Allow going back from results if needed
+    if st.button(t["back"]):
+        st.session_state.step = total_steps
+        st.experimental_rerun()
