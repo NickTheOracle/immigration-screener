@@ -1,80 +1,90 @@
-# This is the final corrected version of your immigration screener logic
-# Based on full compliance with USCIS/NVC guidelines for non-legal informational use
-# All logic has been verified and tested for accuracy
-
 import streamlit as st
-from utils import get_waiver_info, get_routes, generate_summary, translate_output, determine_language
+import json
 
-st.set_page_config(page_title="Immigration Screener", layout="wide")
-st.title("Immigration Screener")
+# --- Placeholder Logic Replacements for utils.py ---
 
-# Session state initialization
-if "answers" not in st.session_state:
-    st.session_state.answers = {}
-if "language" not in st.session_state:
-    st.session_state.language = "English"
-if "show_results" not in st.session_state:
-    st.session_state.show_results = False
+def determine_language(text):
+    if any(word in text.lower() for word in ["el", "la", "usted", "gracias"]):
+        return "spanish"
+    elif any(word in text.lower() for word in ["você", "obrigado", "qual", "como"]):
+        return "portuguese"
+    return "english"
 
-# Language selection
-lang_options = ["English", "Español", "Português"]
-st.session_state.language = st.selectbox("Choose your language / Elija su idioma / Escolha seu idioma", lang_options)
+def get_routes(text):
+    if "parent" in text.lower():
+        return ["I-130 Immediate Relative Petition", "Consular Processing"]
+    elif "asylum" in text.lower():
+        return ["I-589 Asylum"]
+    return ["I-485 Adjustment of Status"]
 
-# Load questions based on selected language
-from questions import get_questions_by_language
-questions = get_questions_by_language(st.session_state.language)
+def get_waiver_info(text):
+    if "unlawful presence" in text.lower():
+        return ["I-601A Provisional Waiver"]
+    elif "removal" in text.lower():
+        return ["I-212 Permission to Reapply"]
+    return []
 
-# Display questions
-for q in questions:
-    qid = q["id"]
-    qtext = q["text"]
-    qtype = q["type"]
-    qoptions = q.get("options", [])
-    depends_on = q.get("depends_on")
+def generate_summary(text, routes, waivers):
+    summary = f"For the given input, the suggested route(s) are: {', '.join(routes)}."
+    if waivers:
+        summary += f" Possible waivers include: {', '.join(waivers)}."
+    return summary
 
-    # Skip question if dependent condition is not met
-    if depends_on:
-        dep_qid, expected_value = depends_on
-        if st.session_state.answers.get(dep_qid) != expected_value:
-            continue
+def translate_output(text, language):
+    translations = {
+        "spanish": {
+            "For the given input": "Para la información proporcionada",
+            "the suggested route(s) are": "las rutas sugeridas son",
+            "Possible waivers include": "Posibles exenciones incluyen"
+        },
+        "portuguese": {
+            "For the given input": "Para as informações fornecidas",
+            "the suggested route(s) are": "as rotas sugeridas são",
+            "Possible waivers include": "Possíveis perdões incluem"
+        }
+    }
 
-    # Render appropriate input field
-    if qtype == "text":
-        st.session_state.answers[qid] = st.text_input(qtext, key=qid)
-    elif qtype == "number":
-        st.session_state.answers[qid] = st.number_input(qtext, step=1, key=qid)
-    elif qtype == "boolean":
-        st.session_state.answers[qid] = st.radio(qtext, ["Yes", "No", "Not Sure"], key=qid)
-    elif qtype == "select":
-        st.session_state.answers[qid] = st.selectbox(qtext, qoptions, key=qid)
-    elif qtype == "multiselect":
-        st.session_state.answers[qid] = st.multiselect(qtext, qoptions, key=qid)
+    if language not in translations:
+        return text
 
-# Submit button
-if st.button("Submit"):
-    st.session_state.show_results = True
+    for eng, trans in translations[language].items():
+        text = text.replace(eng, trans)
+    return text
 
-# Results
-if st.session_state.show_results:
-    answers = st.session_state.answers
+# --- Streamlit App ---
 
-    # Determine possible routes and waivers
-    routes = get_routes(answers)
-    waiver_info = get_waiver_info(answers)
+st.set_page_config(page_title="Immigration Screener", layout="centered")
 
-    # Summary generation
-    summary_text = generate_summary(answers, routes, waiver_info)
-    translated_summary = translate_output(summary_text, st.session_state.language)
+st.title("🧾 Immigration Consultation Screener")
+st.markdown("Enter details about your immigration case to view possible routes and waivers.")
 
-    # Display output
-    st.subheader("Results")
-    st.write(translated_summary)
+text_input = st.text_area("Describe the situation:", height=200)
 
-    # Offer download/email options
-    st.download_button("Download Summary", translated_summary, file_name="immigration_summary.txt")
+if st.button("Analyze"):
+    if not text_input.strip():
+        st.error("Please enter some details to analyze.")
+    else:
+        language = determine_language(text_input)
+        routes = get_routes(text_input)
+        waivers = get_waiver_info(text_input)
+        summary = generate_summary(text_input, routes, waivers)
+        translated = translate_output(summary, language)
 
-    mailto_body = translated_summary[:1500].replace("\n", "%0A")
-    st.markdown(f"[Send via Email](mailto:?subject=My Immigration Results&body={mailto_body})")
+        st.subheader("🧭 Immigration Route(s):")
+        for r in routes:
+            st.markdown(f"- {r}")
 
-    st.markdown("---")
-    st.caption("This tool provides general information only. It does not provide legal advice and does not create an attorney-client relationship.")
+        if waivers:
+            st.subheader("🛑 Waiver(s) Recommended:")
+            for w in waivers:
+                st.markdown(f"- {w}")
+
+        st.subheader("📝 Summary")
+        st.write(translated)
+
+        st.download_button(
+            label="📄 Download Summary",
+            data=translated,
+            file_name="immigration_summary.txt",
+            mime="text/plain"
+        )
