@@ -24,8 +24,7 @@ T = {
         "Less6":"<6 months","_6_12":"6–12 months","_12_36":"1–3 years","_3_10":"3–10 years","_10plus":"10+ years",
         # Questions
         "q_lang":"Choose language / Elija idioma / Escolha idioma",
-        "q_where":"Where are you now?","q_born_abroad":"Were you born outside the U.S.?",
-        "q_lpr":"Are you a lawful permanent resident (green card holder)?",
+        "q_where":"Where are you now?","q_lpr":"Are you a lawful permanent resident (green card holder)?",
         "q_lpr_years":"How long have you been an LPR?",
         "q_married_usc":"Married to U.S. citizen and lived in union 3+ years?","q_continuous":"Continuous residence (no 6+ month trips)?",
         "q_trips6":"Any single trip outside 6+ months?","q_good_moral":"Any arrests/convictions in last 5 yrs?",
@@ -60,8 +59,8 @@ T = {
         "Less6":"<6 meses","_6_12":"6–12 meses","_12_36":"1–3 años","_3_10":"3–10 años","_10plus":"10+ años",
         # Questions
         "q_lang":"Elija idioma / Choose language / Escolha idioma",
-        "q_where":"¿Dónde se encuentra ahora?","q_born_abroad":"¿Nació fuera de EE. UU.?",
-        "q_lpr":"¿Es residente permanente (green card)?","q_lpr_years":"¿Cuánto tiempo lleva como residente permanente?",
+        "q_where":"¿Dónde se encuentra ahora?","q_lpr":"¿Es residente permanente (green card)?",
+        "q_lpr_years":"¿Cuánto tiempo lleva como residente permanente?",
         "q_married_usc":"¿Casado(a) con ciudadano(a) y en unión 3+ años?","q_continuous":"¿Residencia continua (sin viajes de 6+ meses)?",
         "q_trips6":"¿Algún viaje único de 6+ meses?","q_good_moral":"¿Arrestos/condenas últimos 5 años?",
         "q_selective":"Si es hombre 18–26 en EE. UU., ¿registrado en Servicio Selectivo?","q_under_18":"¿Menor de 18 años?",
@@ -95,17 +94,16 @@ T = {
         "Less6":"<6 meses","_6_12":"6–12 meses","_12_36":"1–3 anos","_3_10":"3–10 anos","_10plus":"10+ anos",
         # Questions
         "q_lang":"Escolha idioma / Choose language / Elija idioma",
-        "q_where":"Onde você está agora?","q_born_abroad":"Você nasceu fora dos EUA?",
-        "q_lpr":"É residente permanente (green card)?","q_lpr_years":"Há quanto tempo é residente?",
-        "q_married_usc":"Casado(a) com cidadão(ã) 3+ anos?","q_continuous":"Residência contínua (sem viagens 6+ meses)?",
-        "q_trips6":"Alguma viagem única 6+ meses?","q_good_moral":"Prisões/condenações últimos 5 anos?",
-        "q_selective":"Se homem 18–26 nos EUA, registrou no Serviço Militar?","q_under_18":"Menor de 18?",
-        "q_parent_citizen_birth":"Algum dos pais era cidadão no seu nascimento?","q_parent_presence_met":"Esse pai cumpriu presença física?",
-        "q_parent_natz_after":"Algum dos pais naturalizou após nascimento?","q_live_with_usc_parent":"Reside(u) com pai/mãe cidadão?",
-        "q_is_LPR_child":"A criança é residente permanente?","q_family_heads":"Quais parentes tem nos EUA?",
-        "opt_spouseUSC":"Cônjuge cidadão","opt_spouseLPR":"Cônjuge residente","opt_parentUSC":"Pai/mãe cidadão",
-        "opt_child21USC":"Filho(a) cidadão 21+","opt_siblingUSC":"Irmão(ã) cidadão","opt_none":"Nenhum",
-        "q_pd_current":"Se alguma petição aprovada, PD atual no Visa Bulletin?",
+        "q_where":"Onde você está agora?","q_lpr":"É residente permanente (green card)?",
+        "q_lpr_years":"Há quanto tempo é residente?","q_married_usc":"Casado(a) com cidadão(ã) 3+ anos?",
+        "q_continuous":"Residência contínua (sem viagens 6+ meses)?","q_trips6":"Alguma viagem única 6+ meses?",
+        "q_good_moral":"Prisões/condenações últimos 5 anos?","q_selective":"Se homem 18–26 nos EUA, registrou no Serviço Militar?",
+        "q_under_18":"Menor de 18?","q_parent_citizen_birth":"Algum dos pais era cidadão no seu nascimento?",
+        "q_parent_presence_met":"Esse pai cumpriu presença física?","q_parent_natz_after":"Algum dos pais naturalizou após nascimento?",
+        "q_live_with_usc_parent":"Reside(u) com pai/mãe cidadão?","q_is_LPR_child":"A criança é residente permanente?",
+        "q_family_heads":"Quais parentes tem nos EUA?","opt_spouseUSC":"Cônjuge cidadão",
+        "opt_spouseLPR":"Cônjuge residente","opt_parentUSC":"Pai/mãe cidadão","opt_child21USC":"Filho(a) cidadão 21+",
+        "opt_siblingUSC":"Irmão(ã) cidadão","opt_none":"Nenhum","q_pd_current":"Se petição aprovada, PD atual no Visa Bulletin?",
         "q_time_out":"Tempo fora dos EUA (período contínuo)?","q_prior_removal":"Já foi removido/deportado?",
         "q_illegal_reentry":"Após remoção ou >1 ano, reentrou ilegalmente?","q_unlawful_presence":"Antes de sair, 180+ dias de presença ilegal?",
         "q_lawful_entry_last":"Última entrada inspecionada/parole?","q_crim_fraud":"Problema penal/fraude?",
@@ -121,14 +119,17 @@ def rerun():
 
 def make_pdf(answers,routes,notes,lang):
     buf=io.BytesIO();doc=SimpleDocTemplate(buf,pagesize=letter)
-    styles=getSampleStyleSheet();story=[Paragraph(T[lang]["title"],styles["Title"]),Spacer(1,12)]
+    styles=getSampleStyleSheet()
+    story=[Paragraph(T[lang]["title"],styles["Title"]),Spacer(1,12)]
+    story+=[Paragraph(T[lang]["disclaimer"],styles["Italic"]),Spacer(1,12)]
     story+=[Paragraph(T[lang]["answers_hdr"],styles["Heading2"])]
     for k,v in answers.items(): story.append(Paragraph(f"- {k}: {v}",styles["Normal"]))
     story.append(Spacer(1,12));story.append(Paragraph(T[lang]["routes_label"],styles["Heading2"]))
     for r in routes: story.append(Paragraph(f"- {r}",styles["Normal"]))
     if notes: story.append(Spacer(1,12));story.append(Paragraph(T[lang]["notes_label"],styles["Heading2"]))
     for n in notes: story.append(Paragraph(f"- {n}",styles["Normal"]))
-    doc.build(story);pdf=buf.getvalue();buf.close();return pdf
+    doc.build(story)
+    return buf.getvalue()
 
 # ================= APP =================
 st.set_page_config(page_title="Screener",layout="centered")
@@ -159,7 +160,8 @@ Q=[
     q(t["q_parent_presence_met"],[Yes,No,NS],"parent_presence_met",cond=lambda a:a.get("parent_citizen_birth")==Yes),
     q(t["q_parent_natz_after"],[Yes,No],"parent_natz_after"),
     q(t["q_under_18"],[Yes,No],"under18"),
-    q(t["q_family_heads"],[t["opt_spouseUSC"],t["opt_spouseLPR"],t["opt_parentUSC"],t["opt_child21USC"],t["opt_siblingUSC"],t["opt_none"]],"relatives"),
+    # relatives: multiselect
+    {"label":t["q_family_heads"],"opts":[t["opt_spouseUSC"],t["opt_spouseLPR"],t["opt_parentUSC"],t["opt_child21USC"],t["opt_siblingUSC"],t["opt_none"]],"key":"relatives","cond":lambda a:True},
     q(t["q_pd_current"],[Yes,No,NS],"pd_current"),
     q(t["q_time_out"],[t["Less6"],t["_6_12"],t["_12_36"],t["_3_10"],t["_10plus"]],"time_out",cond=lambda a:a.get("where")==t["OutsideUS"]),
     q(t["q_prior_removal"],[Yes,No],"prior_removal"),
@@ -180,38 +182,12 @@ cur=st.session_state.step
 
 if 1<=cur<=TOTAL:
     qd=VISIBLE[cur-1];label,opts,key=qd["label"],qd["opts"],qd["key"]
-    prev=A.get(key);idx=opts.index(prev) if prev in opts else 0
-    choice=st.radio(label,opts,index=idx,key=f"q_{key}")
+    prev=A.get(key)
+    if key=="relatives":
+        choice=st.multiselect(label,opts,default=prev if isinstance(prev,list) else [])
+    else:
+        idx=opts.index(prev) if prev in opts else 0
+        choice=st.radio(label,opts,index=idx,key=f"q_{key}")
     cols=st.columns(3)
     if cols[0].button(t["back"],disabled=(cur==1)): A[key]=choice;st.session_state.step=cur-1;rerun()
-    if cols[1].button(t["reset"]): st.session_state.answers={};st.session_state.step=0;rerun()
-    if cols[2].button(t["next"]): A[key]=choice;st.session_state.step=cur+1;rerun()
-
-# Final results only after last question
-if cur>TOTAL:
-    routes=[];notes=[]
-    if A.get("is_lpr")==Yes:
-        if A.get("lpr_years") in ["5+","3–5"] and A.get("continuous")==Yes and A.get("trips6")==No and A.get("gmh")==No:
-            routes.append("N-400 naturalization possible.")
-        else: notes.append("N-400 eligibility may be limited (time, residence, GMC).")
-    if A.get("parent_citizen_birth")==Yes and A.get("parent_presence_met")==Yes:
-        if A.get("under18")==Yes and A.get("where")==t["OutsideUS"]: routes.append("CRBA + passport.")
-        else: routes.append("N-600 / passport as proof of citizenship at birth.")
-    if A.get("parent_natz_after")==Yes and A.get("under18")==Yes and A.get("is_lpr")==Yes: routes.append("N-600 derivation INA §320.")
-    rels=A.get("relatives",t["opt_none"])
-    if rels!=t["opt_none"]:
-        if A.get("pd_current")==Yes: routes.append("Consular processing via NVC.")
-        else: notes.append("I-130 pending; wait until PD current.")
-    else: notes.append("No qualifying relative indicated; consider I-130.")
-    if A.get("fear")==Yes: routes.append("Asylum/Withholding/CAT (if within 1 year or exception).")
-    if A.get("u_victim")==Yes and A.get("u_report")==Yes: routes.append("U Visa (victim of qualifying crime + cooperation).")
-    if A.get("prior_removal")==Yes: routes.append("I-212 (permission to reapply).")
-    if A.get("unlawful_presence")==Yes and A.get("where")==t["OutsideUS"]: routes.append("I-601 waiver for unlawful presence.")
-    if not routes: routes.append("General path: family petition, NVC, assess waivers.")
-
-    st.subheader(t["results"])
-    for r in routes: st.write("- "+r)
-    for n in notes: st.write("Note: "+n)
-    pdf=make_pdf(A,routes,notes,lang)
-    st.download_button(label=t["pdf_btn"],data=pdf,file_name="screener_summary.pdf",mime="application/pdf")
-    st.markdown(f"[{t['mailto_btn']}]({'mailto:?subject='+urllib.parse.quote(t['mail_subject'])+'&body='+urllib.parse.quote(str(routes+notes))})")
+   
