@@ -404,26 +404,42 @@ if cur > TOTAL:
     if has_sibling_USC:
         routes.append(t["r_f4"])
 
+    # If no relatives picked, suggest generic baseline pathing
     if none_rel:
         routes.append(t["r_default"])
 
     # Waivers / bars
     if (outside() or (inside() and A.get("last_entry_lawful") == No)) and A.get("unlawful_presence") == Yes:
+        # Unlawful presence generally -> consular with I-601; keep route(s) already chosen, or add default if none
+        if not routes:
+            routes.append(t["r_default"])
         routes.append(t["r_i601"])
         if outside():
             notes.append(t["n_601A_abroad"])
+
     if A.get("prior_removal") in [Yes]:
+        if not routes:
+            routes.append(t["r_default"])
         routes.append(t["r_i212"])
+
+    # INA 212(a)(9)(C) permanent bar note; still keep at least a planning route for later eligibility
     if A.get("illegal_reentry") in [t["Once"], t["MoreThanOnce"]]:
         notes.append(t["n_9c"])
+        if not routes:
+            routes.append(t["r_default"])
+
     if A.get("crim_fraud") in [Yes]:
         notes.append(t["n_crime"])
+        if not routes:
+            routes.append(t["r_default"])
+
+    # Final fallback: never return an empty route set
+    if not routes:
+        routes.append(t["r_default"])
 
     # Render
     st.subheader(t["results"])
     st.markdown(t["disclaimer"])
-
-    # Show 100% progress at completion
     if TOTAL:
         st.progress(1.0)
 
@@ -433,6 +449,7 @@ if cur > TOTAL:
             st.write(f"- {r}")
     else:
         st.warning(t["no_route"])
+
     if notes:
         st.info(t["notes_label"])
         for n in notes:
@@ -442,7 +459,7 @@ if cur > TOTAL:
     try:
         pdf_bytes = make_pdf(A, routes, notes, lang)
         st.download_button(label=t["pdf_btn"], data=pdf_bytes, file_name="screener_summary.pdf", mime="application/pdf")
-    except Exception:  # reportlab not installed or rendering issue
+    except Exception:
         pass
 
     subject = urllib.parse.quote(t["mail_subject"])
@@ -454,7 +471,6 @@ if cur > TOTAL:
     body = urllib.parse.quote("\n".join(lines)[:1500])
     st.markdown(f"[{t['mailto_btn']}]({'mailto:?subject=' + subject + '&body=' + body})")
 
-    # Controls
     c1, c2 = st.columns(2)
     if c1.button(t["restart"], use_container_width=True, key="restart_btn"):
         st.session_state.answers = {}
@@ -464,3 +480,4 @@ if cur > TOTAL:
         st.session_state.answers = {}
         st.session_state.step = 1
         rerun()
+
